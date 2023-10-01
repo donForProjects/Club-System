@@ -14,6 +14,7 @@ root.title("STUDENT REG")
 root.geometry('1350x700+0+0')
 my_tree = ttk.Treeview(root)
 IST = pytz.timezone('Asia/Manila')
+root.resizable(False, False)
 
 
 
@@ -55,13 +56,11 @@ def check_in():
             cur.execute("INSERT INTO tb1 VALUES('"+Name+"', '"+Track+"','"+Year+"')")
             connection.commit()
 
-            
             stud_numEntry.delete(0, "end")
             track.set("SELECTED TRACK")
             year.set("YEAR LEVEL")
 
-            greet = "Registration Success"
-            messagebox(greet)
+
 
 def TREE():
     for i in my_tree.get_children():
@@ -160,5 +159,4 @@ my_tree.heading("Year", text="Year", anchor=CENTER)
 
 TREE()
 update_clock()
-root.bind('<Return>', reg_button)
 root.mainloop()
