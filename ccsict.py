@@ -46,21 +46,23 @@ def check_in():
         Track = track.get()
         Year = year.get()
         Taken_class = taken_class.get()
+        Status = status.get()
 
-        if Name=="" or Track=="SELECTED TRACK" or Year=="YEAR LEVEL" or Taken_class =="TAKEN CLASS":
+        if Name=="" or Track=="SELECTED TRACK" or Year=="YEAR LEVEL" or Taken_class =="TAKEN CLASS" or Status == "STATUS":
             messagebox.showerror("Error","Please fill the form",parent=root)
         else:
 
             connection = sqlite.connect("db0.db")
             cur = connection.cursor()
-            cur.execute("""CREATE TABLE IF NOT EXISTS tb1([Name] VARCHAR(225), [Track] VARCHAR(225), [Year] VARCHAR(225), [Taken Class] VARCHAR(255))""")
-            cur.execute("INSERT INTO tb1 VALUES('"+Name+"', '"+Track+"','"+Year+"','"+Taken_class+"')")
+            cur.execute("""CREATE TABLE IF NOT EXISTS tb1([Name] VARCHAR(225), [Track] VARCHAR(225), [Year] VARCHAR(225), [Taken Class] VARCHAR(255), [Status] VARCHAR(255))""")
+            cur.execute("INSERT INTO tb1 VALUES('"+Name+"', '"+Track+"','"+Year+"','"+Taken_class+"','"+Status+"')")
             connection.commit()
 
             stud_numEntry.delete(0, "end")
             track.set("SELECTED TRACK")
             year.set("YEAR LEVEL")
             taken_class.set("TAKEN CLASS")
+            status.set("STATUS")
 
 
 
@@ -74,7 +76,7 @@ def TREE():
 def read():
     conn = sqlite.connect("db0.db")
     cur = conn.cursor()
-    cur.execute("""CREATE TABLE IF NOT EXISTS tb1([Name] VARCHAR(225), [Track] VARCHAR(225), [Year] VARCHAR(225), [Taken Class] VARCHAR(255))""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS tb1([Name] VARCHAR(225), [Track] VARCHAR(225), [Year] VARCHAR(225), [Taken Class] VARCHAR(255), [Status] VARCHAR(255))""")
     cur.execute("SELECT * FROM tb1")
     aa = cur.fetchall()
     conn.commit()
@@ -84,13 +86,13 @@ def read():
     return aa
 
 
-label_time = tk.Label(root, text="Current Date and Time", font=('Verdana', 20, 'bold'),bg='lightgray').place(x=88, y=400)
+label_time = tk.Label(root, text="Current Date and Time", font=('Verdana', 18, 'bold'),bg='lightgray').place(x=98, y=435)
 
-label_date_now = tk.Label(text="Current Date", font = ('Verdana 20 bold'),bg='lightgray')
-label_date_now.place(x=40, y=450)
+label_date_now = tk.Label(text="Current Date", font = ('Verdana', 15, 'bold'),bg='lightgray')
+label_date_now.place(x=50, y=470)
 
-label_time_now = tk.Label(text="Current Time", font = ('Verdana 20 bold'),bg='lightgray')
-label_time_now.place(x=300, y=450)
+label_time_now = tk.Label(text="Current Time", font = ('Verdana' ,15, 'bold'),bg='lightgray')
+label_time_now.place(x=300, y=470)
 
 
 
@@ -124,11 +126,24 @@ taken_class['values'] = ('Fundamentals of Programming', 'Database')
 taken_class['state'] = 'readonly'
 taken_class.place(x=200, y=300, height=25)
 
+# status = tk.Label(root, text='Status:',font=('Verdana', 15),bg='lightgray' )
+# status.place(x=35, y=350)
+# membership = Radiobutton(root, text="Member",width = 10,font=('Verdana', 15, 'bold'),bg='lightgray')
+# membership.place(x=165, y=350)
+
+status = tk.Label(root, text='Status:',font=('Verdana', 15),bg='lightgray' )
+status.place(x=35,y=348)
+status = ttk.Combobox(root, width = 17,font=('Verdana', 10, 'bold'))
+status.set("STATUS")
+status['values'] = ('Member', 'Non-Member')
+status['state'] = 'readonly'
+status.place(x=200, y=350, height=25)
+
 
 #----------------BUTTONS------------------#
 
-reg_button = Button(text="Check In", command = lambda: [check_in(), TREE()], font=('Verdana', 15, 'bold'), width=17, height=1, bg='SpringGreen4')
-reg_button.place(x=140, y=350)
+reg_button = Button(text="Check In", command = lambda: [check_in(), TREE()], font=('Verdana', 15, 'bold'), width=15, height=1, bg='SpringGreen4')
+reg_button.place(x=155, y=385)
 
 #------------------FRAME-----------------#
 
@@ -140,20 +155,22 @@ my_tree.tag_configure('orow', background="#EEEEEE", font=('Verdana', 10))
 my_tree.place(x=570, y=90, height=440)
 
 style = ttk.Style()
-style.configure("Treeview.Heading", font=('Verdana', 13, 'bold'))
+style.configure("Treeview.Heading", font=('Verdana', 10, 'bold'))
 
-my_tree['columns'] = ("Student ID", "Track/Course", "Year", "Taken Class")
+my_tree['columns'] = ("Student ID", "Track/Course", "Year", "Taken Class", "Status")
 
 my_tree.column("#0", width=0, stretch=NO)
-my_tree.column("Student ID", anchor=CENTER, width=180)
-my_tree.column("Track/Course", anchor=CENTER, width=180)
-my_tree.column("Year", anchor=CENTER, width=180)
-my_tree.column("Taken Class", anchor=CENTER, width=220)
+my_tree.column("Student ID", anchor=CENTER, width=130)
+my_tree.column("Track/Course", anchor=CENTER, width=130)
+my_tree.column("Year", anchor=CENTER, width=100)
+my_tree.column("Taken Class", anchor=CENTER, width=200)
+my_tree.column("Status", anchor=CENTER, width=180)
 
 my_tree.heading("Student ID", text="Student ID", anchor=CENTER)
 my_tree.heading("Track/Course", text="Track/Course", anchor=CENTER)
 my_tree.heading("Year", text="Year", anchor=CENTER)
 my_tree.heading("Taken Class", text="Taken CLass", anchor=CENTER)
+my_tree.heading("Status", text="Status", anchor=CENTER)
 
 
 
