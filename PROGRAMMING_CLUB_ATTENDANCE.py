@@ -13,7 +13,7 @@ import csv
 root = Tk()
 
 root.title("Attendance System")
-root.geometry('1450x700+0+0')
+root.geometry('1530x700+0+0')
 my_tree = ttk.Treeview(root)
 IST = pytz.timezone('Asia/Manila')
 root.resizable(False, False)
@@ -38,6 +38,27 @@ def update_clock():
     label_time_now.after(1000, update_clock)
     return formatted_now
 
+
+
+def update_count():
+    for selected in my_tree.selection():
+        stud_id = str(my_tree.item(selected)['values'][0])      
+        count = int(my_tree.item(selected)['values'][6])
+
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        path_in = 'Attendance '+ current_date+'.csv'
+
+        if stud_id and count:
+            connection = sqlite.connect("Attendance " + current_date + ".db")
+            cur = connection.cursor()
+            cur.execute("""CREATE TABLE IF NOT EXISTS tb1([ID] VARCHAR(225), [Name] VARCHAR(225), [Track] VARCHAR(225), [Year] VARCHAR(225), [Taken Class] VARCHAR(255), [Status] VARCHAR(255), [Count] INTEGER)""")
+            cur.execute("UPDATE tb1 SET [Count] = ? WHERE [ID] = ?", (count+1, stud_id))
+            connection.commit()
+        else:
+            return 0
+
+
+
 def check_in():
         Stud_ID = stud_numEntry.get()
         Name = stud_nameEntry.get()
@@ -45,6 +66,7 @@ def check_in():
         Year = year.get()
         Taken_class = taken_class.get()
         Status = status.get()
+        Count = 1
 
         if Name=="" or Track=="SELECTED TRACK" or Year=="YEAR LEVEL" or Taken_class =="TAKEN CLASS" or Status == "STATUS":
             messagebox.showerror("Error","Please fill the form",parent=root)
@@ -54,8 +76,13 @@ def check_in():
 
             connection = sqlite.connect("Attendance " + current_date + ".db")
             cur = connection.cursor()
-            cur.execute("""CREATE TABLE IF NOT EXISTS tb1([ID] VARCHAR(225), [Name] VARCHAR(225), [Track] VARCHAR(225), [Year] VARCHAR(225), [Taken Class] VARCHAR(255), [Status] VARCHAR(255))""")
-            cur.execute("INSERT INTO tb1 VALUES('"+Stud_ID+"', '"+Name+"', '"+Track+"','"+Year+"','"+Taken_class+"','"+Status+"')")
+            cur.execute("""CREATE TABLE IF NOT EXISTS tb1([ID] VARCHAR(225), [Name] VARCHAR(225), [Track] VARCHAR(225), [Year] VARCHAR(225), [Taken Class] VARCHAR(255), [Status] VARCHAR(255), [Count] INTEGER)""")
+            # cur.execute("INSERT INTO tb1 VALUES('"+Stud_ID+"', '"+Name+"', '"+Track+"','"+Year+"','"+Taken_class+"','"+Status+"', 1)")
+            cur.execute("INSERT INTO tb1 ([ID], [Name], [Track], [Year], [Taken Class], [Status], [Count]) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (Stud_ID, Name, Track, Year, Taken_class, Status, Count))
+
+            # cur.execute("INSERT INTO tb1 ([Count]) VALUES (?)",(Count))
+
             connection.commit()
 
             stud_numEntry.delete(0, "end")
@@ -97,7 +124,7 @@ def read():
     current_date = datetime.now().strftime('%Y-%m-%d')
     conn = sqlite.connect("Attendance " + current_date + ".db")
     cur = conn.cursor()
-    cur.execute("""CREATE TABLE IF NOT EXISTS tb1([ID] VARCHAR(225), [Name] VARCHAR(225), [Track] VARCHAR(225), [Year] VARCHAR(225), [Taken Class] VARCHAR(255), [Status] VARCHAR(255))""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS tb1([ID] VARCHAR(225), [Name] VARCHAR(225), [Track] VARCHAR(225), [Year] VARCHAR(225), [Taken Class] VARCHAR(255), [Status] VARCHAR(255), [Count] INTEGER)""")
     cur.execute("SELECT * FROM tb1")
     aa = cur.fetchall()
     conn.commit()
@@ -164,8 +191,11 @@ status.place(x=200, y=400, height=25)
 
 #----------------BUTTONS------------------#
 
-reg_button = Button(text="Check In", command = lambda: [check_in(), TREE()], font=('Verdana', 15, 'bold'), width=15, height=1, bg='SpringGreen4')
-reg_button.place(x=155, y=435)
+reg_button = Button(text="Add Student", command = lambda: [check_in(), TREE()], font=('Verdana', 15, 'bold'), width=15, height=1, bg='SpringGreen4')
+reg_button.place(x=35, y=435)
+
+reg_button = Button(text="Check In", command = lambda: [update_count(), TREE()], font=('Verdana', 15, 'bold'), width=15, height=1, bg='SpringGreen4')
+reg_button.place(x=285, y=435)
 
 
 #-----------------TREE VIEW-----------------#
@@ -175,7 +205,7 @@ my_tree.place(x=570, y=90, height=490)
 style = ttk.Style()
 style.configure("Treeview.Heading", font=('Verdana', 10, 'bold'))
 
-my_tree['columns'] = ("Student ID", "Student Name", "Track/Course", "Year", "Taken Class", "Status")
+my_tree['columns'] = ("Student ID", "Student Name", "Track/Course", "Year", "Taken Class", "Status", "Count")
 
 my_tree.column("#0", width=0, stretch=NO)
 my_tree.column("Student ID", anchor=CENTER, width=130)
@@ -184,6 +214,8 @@ my_tree.column("Track/Course", anchor=CENTER, width=130)
 my_tree.column("Year", anchor=CENTER, width=100)
 my_tree.column("Taken Class", anchor=CENTER, width=200)
 my_tree.column("Status", anchor=CENTER, width=180)
+my_tree.column("Count", anchor=CENTER, width=80)
+
 
 my_tree.heading("Student ID", text="Student ID", anchor=CENTER)
 my_tree.heading("Student Name", text="Student Name", anchor=CENTER)
@@ -191,6 +223,7 @@ my_tree.heading("Track/Course", text="Track/Course", anchor=CENTER)
 my_tree.heading("Year", text="Year", anchor=CENTER)
 my_tree.heading("Taken Class", text="Taken CLass", anchor=CENTER)
 my_tree.heading("Status", text="Status", anchor=CENTER)
+my_tree.heading("Count", text="Count", anchor=CENTER)
 
 
 
